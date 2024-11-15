@@ -1,0 +1,84 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id              Int             @id @default(autoincrement())
+  email           String          @unique
+  password        String
+  name            String
+  companyId       Int
+  departmentId    Int
+  createdAt       DateTime        @default(now())
+  company         Company         @relation(fields: [companyId], references: [id])
+  department      Department      @relation(fields: [departmentId], references: [id])
+  loginActivities LoginActivity[]
+  projects        Project[]
+  supportTickets  SupportTicket[] // Added relation field for SupportTicket
+}
+
+model Company {
+  id             Int             @id @default(autoincrement())
+  name           String
+  users          User[]
+  departments    Department[]
+  projects       Project[]
+  customers      Customer[]
+  supportTickets SupportTicket[] // Added relation field for SupportTicket
+}
+
+model Department {
+  id        Int     @id @default(autoincrement())
+  name      String
+  companyId Int
+  company   Company @relation(fields: [companyId], references: [id])
+  users     User[]
+}
+
+model Project {
+  id        Int     @id @default(autoincrement())
+  name      String
+  status    String  @default("Not Started") // "Not Started", "In Progress", "Completed"
+  companyId Int
+  userId    Int
+  company   Company @relation(fields: [companyId], references: [id])
+  user      User    @relation(fields: [userId], references: [id])
+}
+
+model LoginActivity {
+  id      Int      @id @default(autoincrement())
+  userId  Int
+  loginAt DateTime @default(now())
+  user    User     @relation(fields: [userId], references: [id])
+}
+
+model SupportTicket {
+  id             Int       @id @default(autoincrement())
+  title          String
+  status         String    @default("Open") // "Open", "In Progress", "Resolved", "Closed"
+  createdAt      DateTime  @default(now())
+  resolvedAt     DateTime?
+  responseTime   Float?
+  resolutionTime Float?
+  companyId      Int
+  userId         Int
+  company        Company   @relation(fields: [companyId], references: [id])
+  user           User      @relation(fields: [userId], references: [id])
+}
+
+model Customer {
+  id                Int      @id @default(autoincrement())
+  name              String
+  email             String   @unique
+  companyId         Int
+  createdAt         DateTime @default(now())
+  company           Company  @relation(fields: [companyId], references: [id])
+  churned           Boolean  @default(false)
+  satisfactionScore Int?
+  netPromoterScore  Int?
+}
