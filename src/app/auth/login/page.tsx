@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { SunIcon, MoonIcon } from '@heroicons/react/24/outline';
+import {setCookie} from "nookies";
 
 
 export default function LoginPage() {
@@ -18,14 +19,30 @@ export default function LoginPage() {
     const validPassword = "tPA%G%5FZap^V&p$";
     const animationText = "YOUR PARTNER IN INNOVATION";
 
-    const handleLogin = (e: React.FormEvent) => {
+    const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
-        if (email === validEmail && password === validPassword) {
-            localStorage.setItem('authenticated', 'true');
-            router.push('/dashboard');
-        } else {
-            setError("Invalid email or password.");
+        try {
+            console.log("Attempting login with:");
+            console.log(`Email: ${email}`);
+            console.log(`Password: ${password}`);
+
+            if (email === validEmail && password === validPassword) {
+                console.log("Login successful!");
+                // Set an authenticated cookie (expires in 1 day)
+                setCookie(null, 'authenticated', 'true', {
+                    maxAge: 24 * 60 * 60,
+                    path: '/',
+                });
+                router.push('/dashboard');
+                console.log("Navigation to /dashboard successful!");
+            } else {
+                console.log("Login failed: Invalid credentials");
+                setError("Invalid email or password.");
+            }
+        } catch (error) {
+            console.error("An error occurred during login:", error);
+            setError("An unexpected error occurred. Please try again.");
         }
     };
 
@@ -62,19 +79,20 @@ export default function LoginPage() {
                             type="email"
                             id="email"
                             placeholder="Enter your email"
-                            className="w-full p-3 rounded-lg border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-300"
+                            className="w-full p-3 bg-transparent rounded-lg border border-gray-300 dark:border-gray-600 text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-300"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             required
                         />
                     </div>
                     <div className="mb-6">
-                        <label htmlFor="password" className="block text-gray-700 dark:text-gray-300 mb-2">Password</label>
+                        <label htmlFor="password"
+                               className="block text-gray-700 dark:text-gray-300 mb-2">Password</label>
                         <input
                             type="password"
                             id="password"
                             placeholder="Enter your password"
-                            className="w-full p-3 rounded-lg border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-300"
+                            className="w-full p-3 bg-transparent rounded-lg border border-gray-300 dark:border-gray-600 text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-300"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             required
@@ -93,7 +111,7 @@ export default function LoginPage() {
                 >
                     {isDarkMode ? (
                         <>
-                            <SunIcon className="w-6 h-6 mr-2" />
+                            <SunIcon className="w-6 h-6 mr-2"/>
                             Light Mode
                         </>
                     ) : (
