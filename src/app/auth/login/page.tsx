@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { SunIcon, MoonIcon } from '@heroicons/react/24/outline';
-import {setCookie} from "nookies";
+import {parseCookies, setCookie} from "nookies";
 
 
 export default function LoginPage() {
@@ -47,8 +47,20 @@ export default function LoginPage() {
     };
 
     const toggleDarkMode = () => {
-        setIsDarkMode(!isDarkMode);
-        document.documentElement.classList.toggle('dark');
+        const newMode = !isDarkMode;
+        setIsDarkMode(newMode);
+
+        // Store the theme preference in a cookie
+        setCookie(null, 'theme', newMode ? 'dark' : 'light', {
+            maxAge: 30 * 24 * 60 * 60, // 30 days
+            path: '/',
+        });
+
+        if (newMode) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
     };
 
     // Typing Animation Effect
@@ -66,6 +78,20 @@ export default function LoginPage() {
 
         return () => clearInterval(interval);
     }, []);
+
+    useEffect(() => {
+        const cookies = parseCookies();
+        const storedTheme = cookies.theme;
+
+        if (storedTheme === 'dark') {
+            setIsDarkMode(true);
+            document.documentElement.classList.add('dark');
+        } else {
+            setIsDarkMode(false);
+            document.documentElement.classList.remove('dark');
+        }
+    }, []);
+
 
     return (
         <div className={`flex flex-col items-center justify-center min-h-screen ${isDarkMode ? 'bg-gradient-to-r from-gray-800 via-gray-900 to-black' : 'bg-gradient-to-r from-blue-100 to-purple-200'}`}>
@@ -116,11 +142,32 @@ export default function LoginPage() {
                         </>
                     ) : (
                         <>
-                            <MoonIcon className="w-6 h-6 mr-2" />
+                            <MoonIcon className="w-6 h-6 mr-2"/>
                             Dark Mode
                         </>
                     )}
                 </button>
+                <div className="mt-6 flex flex-col items-center space-y-4">
+                    {/* Email Display */}
+                    <div className="flex flex-col items-center">
+                        <p className="text-lg font-semibold text-gray-800 dark:text-gray-200">
+                            <strong>Email:</strong>
+                        </p>
+                        <p className="text-md font-mono text-gray-600 dark:text-gray-400">
+                            test@bulltechgroup.co.za
+                        </p>
+                    </div>
+
+                    {/* Password Display */}
+                    <div className="flex flex-col items-center">
+                        <p className="text-lg font-semibold text-gray-800 dark:text-gray-200">
+                            <strong>Password:</strong>
+                        </p>
+                        <p className="text-md font-mono text-gray-600 dark:text-gray-400">
+                            tPA%G%5FZap^V&p$
+                        </p>
+                    </div>
+                </div>
             </div>
             {/* Typing Animation Outside the Login Box */}
             <div className="mt-6 text-center">

@@ -70,30 +70,24 @@ export async function GET() {
 
         // Logins Over Time (Last 30 Days)
         const loginActivities = await prisma.loginActivity.findMany({
-            where: { loginAt: { gte: new Date(new Date().setDate(new Date().getDate() - 30)) } },
+            where: {
+                loginAt: {
+                    gte: new Date(new Date().setDate(new Date().getDate() - 30)), // Past 30 days
+                },
+            },
             orderBy: { loginAt: 'asc' },
         });
-        const loginDates = loginActivities.map((activity) => activity.loginAt.toISOString().split('T')[0]);
-        const loginCounts = loginActivities.reduce<Record<string, number>>((acc, activity) => {
-            const date = activity.loginAt.toISOString().split('T')[0];
+
+        // Group login activities by date
+        const loginCountsByDate = loginActivities.reduce<Record<string, number>>((acc, activity) => {
+            const date = activity.loginAt.toISOString().split('T')[0]; // Format: YYYY-MM-DD
             acc[date] = (acc[date] || 0) + 1;
             return acc;
         }, {});
 
-        // New Customers Over Time (Last 30 Days)
-        const newCustomers = await prisma.customer.findMany({
-            where: {
-                createdAt: {
-                    gte: new Date(new Date().setDate(new Date().getDate() - 30)),
-                },
-            },
-            orderBy: { createdAt: 'asc' },
-        });
-        const newCustomerDates = newCustomers.map((customer) => customer.createdAt.toISOString().split('T')[0]);
-        const newCustomerCounts = newCustomerDates.reduce<Record<string, number>>((acc, date) => {
-            acc[date] = (acc[date] || 0) + 1;
-            return acc;
-        }, {});
+        // Extract dates and counts for login time series data
+        const loginDates = Object.keys(loginCountsByDate);
+        const loginCounts = Object.values(loginCountsByDate);
 
         return NextResponse.json({
             usersCount,
@@ -117,10 +111,9 @@ export async function GET() {
             resolutionRate,
             backlogCounts,
             backlogLabels,
+            // Login time series data
             loginDates,
-            loginCounts: Object.values(loginCounts),
-            newCustomerDates: Object.keys(newCustomerCounts),
-            newCustomerCounts: Object.values(newCustomerCounts),
+            loginCounts,
         });
     } catch (error) {
         console.error("API Error:", error);

@@ -6,9 +6,7 @@ import {
     UserCircleIcon,
     BuildingOfficeIcon,
     ClipboardDocumentIcon,
-    UsersIcon,
     TicketIcon,
-    ClockIcon,
     BoltIcon,
     ChatBubbleLeftRightIcon,
 } from '@heroicons/react/24/solid';
@@ -17,9 +15,7 @@ interface MetricsProps {
     usersCount: number;
     companiesCount: number;
     projectsCount: number;
-    totalCustomers: number;
     openTickets: number;
-    firstResponseTime: number;
     avgResolutionTime: number;
     avgResponseTime: number;
 }
@@ -28,14 +24,12 @@ const SimpleMetrics: React.FC<MetricsProps> = ({
                                                    usersCount,
                                                    companiesCount,
                                                    projectsCount,
-                                                   totalCustomers,
                                                    openTickets,
-                                                   firstResponseTime,
                                                    avgResolutionTime,
                                                    avgResponseTime,
                                                }) => {
     return (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {/* Total Users */}
             <div className="relative p-6 bg-gradient-to-r from-blue-500 to-blue-700 text-white rounded-lg shadow-lg">
                 <h3 className="text-xl font-bold">Total Users</h3>
@@ -57,25 +51,11 @@ const SimpleMetrics: React.FC<MetricsProps> = ({
                 <ClipboardDocumentIcon className="absolute right-4 bottom-2 w-20 h-20 text-white opacity-20" />
             </div>
 
-            {/* Total Customers */}
-            <div className="relative p-6 bg-gradient-to-r from-pink-500 to-pink-700 text-white rounded-lg shadow-lg">
-                <h3 className="text-xl font-bold">Total Customers</h3>
-                <p className="text-3xl font-semibold">{totalCustomers}</p>
-                <UsersIcon className="absolute right-4 bottom-2 w-20 h-20 text-white opacity-20" />
-            </div>
-
             {/* Open Support Tickets */}
             <div className="relative p-6 bg-gradient-to-r from-red-500 to-red-700 text-white rounded-lg shadow-lg">
                 <h3 className="text-xl font-bold">Open Tickets</h3>
                 <p className="text-3xl font-semibold">{openTickets}</p>
                 <TicketIcon className="absolute right-4 bottom-2 w-20 h-20 text-white opacity-20" />
-            </div>
-
-            {/* First Response Time */}
-            <div className="relative p-6 bg-gradient-to-r from-yellow-500 to-yellow-700 text-white rounded-lg shadow-lg">
-                <h3 className="text-xl font-bold">First Response Time</h3>
-                <p className="text-3xl font-semibold">{firstResponseTime} mins</p>
-                <ClockIcon className="absolute right-4 bottom-2 w-20 h-20 text-white opacity-20" />
             </div>
 
             {/* Average Resolution Time */}

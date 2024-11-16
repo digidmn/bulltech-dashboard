@@ -3,17 +3,17 @@
 
 import {useEffect, useState} from 'react';
 import {useRouter} from 'next/navigation';
-import {parseCookies, destroyCookie} from 'nookies';
+import {parseCookies, destroyCookie, setCookie} from 'nookies';
 import SimpleMetrics from '../../components/dashboard/SimpleMetrics';
 import TimeSeriesCharts from '../../components/dashboard/TimeSeriesCharts';
 import DistributionCharts from '../../components/dashboard/DistributionCharts';
 import StatusCharts from '../../components/dashboard/StatusCharts';
+import SatisfactionMetrics from '../../components/dashboard/SatisfactionMetrics';
 
 import {
     SunIcon,
     MoonIcon,
     UserCircleIcon,
-    MagnifyingGlassIcon,
     PowerIcon,
 } from '@heroicons/react/24/outline';
 import {
@@ -89,7 +89,7 @@ export default function DashboardPage() {
     const [data, setData] = useState<DashboardData | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
-    const [searchQuery, setSearchQuery] = useState('');
+    const [activeIndex, setActiveIndex] = useState<number | null>(null);
 
     useEffect(() => {
         const isAuthenticated = parseCookies()['authenticated'] === 'true';
@@ -161,13 +161,19 @@ export default function DashboardPage() {
         router.push('/auth/login');
     };
 
+    // Toggle dark mode and update the cookie
     const toggleDarkMode = () => {
-        setIsDarkMode(!isDarkMode);
-        document.documentElement.classList.toggle('dark');
-    };
+        const newMode = !isDarkMode;
+        setIsDarkMode(newMode);
 
-    const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setSearchQuery(event.target.value.toLowerCase());
+        // Store the theme preference in a cookie
+        setCookie(null, "theme", newMode ? "dark" : "light", {
+            maxAge: 30 * 24 * 60 * 60, // 30 days
+            path: "/",
+        });
+
+        // Apply the theme
+        document.documentElement.classList.toggle("dark", newMode);
     };
 
     if (loading) {
@@ -187,8 +193,13 @@ export default function DashboardPage() {
         );
     }
 
+    const toggleAccordion = (index: number) => {
+        setActiveIndex(activeIndex === index ? null : index);
+    };
+
     return (
-        <div className={`min-h-screen ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-white text-gray-900'} p-6`}>
+        <div
+            className={`min-h-screen ${isDarkMode ? 'bg-gradient-to-r from-gray-800 via-gray-900 to-black text-white' : 'bg-gradient-to-r from-blue-100 to-purple-200 text-gray-600'} p-6`}>
             {/* Top Navigation Bar */}
             <nav className="flex justify-between items-center mb-6 p-4 bg-white dark:bg-gray-800 shadow-lg rounded-lg">
                 <h1 className="text-3xl font-bold">Dashboard</h1>
@@ -207,66 +218,92 @@ export default function DashboardPage() {
             {/* Analytics Heading with Search Bar */}
             <div className="container mx-auto flex justify-between items-center mb-6">
                 <h2 className="text-2xl font-semibold">Analytics</h2>
-                <div className="relative">
-                    <input
-                        type="text"
-                        placeholder="Search..."
-                        value={searchQuery}
-                        onChange={handleSearch}
-                        className="p-2 rounded-lg border dark:border-gray-700 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-white shadow-sm"
-                    />
-                    <MagnifyingGlassIcon
-                        className="w-5 h-5 absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500"/>
-                </div>
             </div>
+
+            <div className="container mx-auto mb-6">
+                <SatisfactionMetrics csatScore={data?.csatScore || 0} npsScore={data?.npsScore || 0}/>
+            </div>
+            <hr className="h-0.5 bg-white/30 dark:bg-white/20 backdrop-blur-lg rounded-lg my-6"/>
 
             <div className="container mx-auto mb-6">
                 <SimpleMetrics
                     usersCount={data?.usersCount || 0}
                     companiesCount={data?.companiesCount || 0}
                     projectsCount={data?.projectsCount || 0}
-                    totalCustomers={data?.totalCustomers || 0}
                     openTickets={data?.openTickets || 0}
-                    firstResponseTime={data?.firstResponseTime || 0}
                     avgResolutionTime={data?.avgResolutionTime || 0}
                     avgResponseTime={data?.avgResponseTime || 0}
                 />
             </div>
 
-            <div className="container mx-auto mb-6">
-                <TimeSeriesCharts
-                    newCustomerDates={data?.newCustomerDates || []}
-                    newCustomerCounts={data?.newCustomerCounts || []}
-                    churnRateDates={data?.churnRateDates || []}
-                    churnRates={data?.churnRates || []}
-                    loginDates={data?.loginDates || []}
-                    loginCounts={data?.loginCounts || []}
-                    clvDates={data?.clvDates || []}
-                    clvValues={data?.clvValues || []}
-                />
-            </div>
+            {/* Accordion Sections with + and - Icons */}
+            <div className="space-y-6">
+                {/* Time Series Charts Accordion */}
+                <div>
+                    <button
+                        onClick={() => toggleAccordion(2)}
+                        className="ring-2 ring-cyan-700 w-full flex justify-between items-center font-semibold text-lg p-4 bg-gray-100 dark:bg-gray-800 rounded-lg transition-all duration-200"
+                    >
+                        <span>Time Series Charts</span>
+                        <span className="text-xl">
+                {activeIndex === 2 ? '-' : '+'}
+            </span>
+                    </button>
+                    {activeIndex === 2 && (
+                        <div className="p-4">
+                            <TimeSeriesCharts loginDates={data?.loginDates || []} loginCounts={data?.loginCounts || []} />
+                        </div>
+                    )}
+                </div>
 
-            <div className="container mx-auto mb-6">
-                <DistributionCharts
-                    departmentLabels={data?.departmentLabels || []}
-                    userCountsPerDepartment={data?.userCountsPerDepartment || []}
-                    companyLabels={data?.companyLabels || []}
-                    userCountsPerCompany={data?.userCountsPerCompany || []}
-                    projectStatusLabels={data?.projectStatusLabels || []}
-                    projectStatusCounts={data?.projectStatusCounts || []}
-                    companyNames={data?.companyNames || []}
-                    departmentCounts={data?.departmentCounts || []}
-                />
-            </div>
+                {/* Distribution Charts Accordion */}
+                <div>
+                    <button
+                        onClick={() => toggleAccordion(3)}
+                        className="ring-2 ring-cyan-700 w-full flex justify-between items-center font-semibold text-lg p-4 bg-gray-100 dark:bg-gray-800 rounded-lg transition-all duration-200"
+                    >
+                        <span>Distribution Charts</span>
+                        <span className="text-xl">
+                {activeIndex === 3 ? '-' : '+'}
+            </span>
+                    </button>
+                    {activeIndex === 3 && (
+                        <div className="p-4">
+                            <DistributionCharts
+                                departmentLabels={data?.departmentLabels || []}
+                                userCountsPerDepartment={data?.userCountsPerDepartment || []}
+                                companyLabels={data?.companyLabels || []}
+                                userCountsPerCompany={data?.userCountsPerCompany || []}
+                                projectStatusLabels={data?.projectStatusLabels || []}
+                                projectStatusCounts={data?.projectStatusCounts || []}
+                            />
+                        </div>
+                    )}
+                </div>
 
-            <div className="container mx-auto mb-6">
-                <StatusCharts
-                    ticketStatusLabels={data?.ticketStatusLabels || []}
-                    ticketStatusCounts={data?.ticketStatusCounts || []}
-                    resolutionRate={data?.resolutionRate || 0}
-                    backlogCounts={data?.backlogCounts || []}
-                    backlogLabels={data?.backlogLabels || []}
-                />
+                {/* Status Charts Accordion */}
+                <div>
+                    <button
+                        onClick={() => toggleAccordion(4)}
+                        className="ring-2 ring-cyan-700 w-full flex justify-between items-center font-semibold text-lg p-4 bg-gray-100 dark:bg-gray-800 rounded-lg transition-all duration-200"
+                    >
+                        <span>Status Charts</span>
+                        <span className="text-xl">
+                {activeIndex === 4 ? '-' : '+'}
+            </span>
+                    </button>
+                    {activeIndex === 4 && (
+                        <div className="p-4">
+                            <StatusCharts
+                                ticketStatusLabels={data?.ticketStatusLabels || []}
+                                ticketStatusCounts={data?.ticketStatusCounts || []}
+                                resolutionRate={data?.resolutionRate || 0}
+                                backlogCounts={data?.backlogCounts || []}
+                                backlogLabels={data?.backlogLabels || []}
+                            />
+                        </div>
+                    )}
+                </div>
             </div>
         </div>
     );
