@@ -1,18 +1,20 @@
 // src/app/dashboard/page.tsx
 "use client";
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { parseCookies, destroyCookie } from 'nookies';
-import { Bar, Line, Pie, Doughnut, PolarArea, Radar } from 'react-chartjs-2';
+import {useEffect, useState} from 'react';
+import {useRouter} from 'next/navigation';
+import {parseCookies, destroyCookie} from 'nookies';
+import SimpleMetrics from '../../components/dashboard/SimpleMetrics';
+import TimeSeriesCharts from '../../components/dashboard/TimeSeriesCharts';
+import DistributionCharts from '../../components/dashboard/DistributionCharts';
+import StatusCharts from '../../components/dashboard/StatusCharts';
+
 import {
     SunIcon,
     MoonIcon,
     UserCircleIcon,
-    MagnifyingGlassIcon, PowerIcon,
-    BuildingOfficeIcon,
-    ClipboardDocumentIcon,
-    TicketIcon,
+    MagnifyingGlassIcon,
+    PowerIcon,
 } from '@heroicons/react/24/outline';
 import {
     Chart as ChartJS,
@@ -56,6 +58,29 @@ interface DashboardData {
     churnRate: number;
     newCustomers: number;
     totalCustomers: number;
+    clvDates: string[];
+    clvValues: number[];
+    churnRateDates: string[];
+    churnRates: number[];
+    loginDates: string[];
+    loginCounts: number[];
+    newCustomerDates: string[];
+    newCustomerCounts: number[];
+    // Distribution Data
+    departmentLabels: string[];
+    userCountsPerDepartment: number[];
+    companyLabels: string[];
+    userCountsPerCompany: number[];
+    projectStatusLabels: string[];
+    projectStatusCounts: number[];
+    companyNames: string[];
+    departmentCounts: number[];
+    // Status Data
+    ticketStatusLabels: string[];
+    ticketStatusCounts: number[];
+    resolutionRate: number;
+    backlogCounts: number[];
+    backlogLabels: string[];
 }
 
 export default function DashboardPage() {
@@ -79,9 +104,52 @@ export default function DashboardPage() {
         try {
             const response = await fetch('/api/dashboard-data');
             if (!response.ok) throw new Error(`Error: ${response.status} ${response.statusText}`);
+
             const result = await response.json();
-            setData(result);
+            console.log("API Data:", result);
+
+            // Ensure all fields are properly set
+            setData({
+                usersCount: result.usersCount || 0,
+                ticketStatusCounts: JSON.parse(JSON.stringify(result.ticketStatusCounts || [])),
+                ticketStatusLabels: JSON.parse(JSON.stringify(result.ticketStatusLabels || [])),
+                clvValues: JSON.parse(JSON.stringify(result.clvValues || [])),
+                loginCounts: JSON.parse(JSON.stringify(result.loginCounts || [])),
+                companiesCount: result.companiesCount || 0,
+                departmentsCount: result.departmentsCount || 0,
+                projectsCount: result.projectsCount || 0,
+                openTickets: result.openTickets || 0,
+                resolvedTickets: result.resolvedTickets || 0,
+                avgResponseTime: result.avgResponseTime || 0,
+                firstResponseTime: result.firstResponseTime || 0,
+                avgResolutionTime: result.avgResolutionTime || 0,
+                ticketBacklog: result.ticketBacklog || 0,
+                csatScore: result.csatScore || 0,
+                npsScore: result.npsScore || 0,
+                clv: result.clv || 0,
+                churnRate: result.churnRate || 0,
+                newCustomers: result.newCustomers || 0,
+                totalCustomers: result.totalCustomers || 0,
+                clvDates: result.clvDates || [],
+                churnRateDates: result.churnRateDates || [],
+                churnRates: result.churnRates || [],
+                loginDates: result.loginDates || [],
+                newCustomerDates: result.newCustomerDates || [],
+                newCustomerCounts: result.newCustomerCounts || [],
+                departmentLabels: result.departmentLabels || [],
+                userCountsPerDepartment: result.userCountsPerDepartment || [],
+                companyLabels: result.companyLabels || [],
+                userCountsPerCompany: result.userCountsPerCompany || [],
+                projectStatusLabels: result.projectStatusLabels || [],
+                projectStatusCounts: result.projectStatusCounts || [],
+                companyNames: result.companyNames || [],
+                departmentCounts: result.departmentCounts || [],
+                resolutionRate: result.resolutionRate || 0,
+                backlogCounts: result.backlogCounts || [],
+                backlogLabels: result.backlogLabels || [],
+            });
         } catch (err: any) {
+            console.error("Fetch error:", err);
             setError("Failed to fetch data. Please try again later.");
         } finally {
             setLoading(false);
@@ -113,16 +181,6 @@ export default function DashboardPage() {
     if (error) {
         return (
             <div className="flex flex-col items-center justify-center min-h-screen text-red-500">
-                <svg
-                    className="w-12 h-12 mb-4"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
-                >
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h.01M12 8h.01M12 19c4.418 0 8-3.582 8-8s-3.582-8-8-8-8 3.582-8 8 3.582 8 8 8z" />
-                </svg>
                 <p className="text-lg font-semibold">An error occurred while fetching data.</p>
                 <p className="text-sm">{error}</p>
             </div>
@@ -132,18 +190,16 @@ export default function DashboardPage() {
     return (
         <div className={`min-h-screen ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-white text-gray-900'} p-6`}>
             {/* Top Navigation Bar */}
-            <nav className={`flex justify-between items-center mb-6 p-4 bg-white dark:bg-gray-800 shadow-lg rounded-lg`}>
+            <nav className="flex justify-between items-center mb-6 p-4 bg-white dark:bg-gray-800 shadow-lg rounded-lg">
                 <h1 className="text-3xl font-bold">Dashboard</h1>
                 <div className="flex items-center gap-4">
-                    {/* Dark/Light Mode Toggle */}
                     <button onClick={toggleDarkMode}>
-                        {isDarkMode ? <SunIcon className="w-6 h-6 text-yellow-400" /> : <MoonIcon className="w-6 h-6 text-blue-500" />}
+                        {isDarkMode ? <SunIcon className="w-6 h-6 text-yellow-400"/> :
+                            <MoonIcon className="w-6 h-6 text-blue-500"/>}
                     </button>
-                    {/* User Profile Icon */}
-                    <UserCircleIcon className="w-8 h-8 text-gray-600 dark:text-gray-300" />
-                    {/* Logout Button */}
+                    <UserCircleIcon className="w-8 h-8 text-gray-600 dark:text-gray-300"/>
                     <button onClick={logout}>
-                        <PowerIcon className="w-6 h-6 text-red-500" />
+                        <PowerIcon className="w-6 h-6 text-red-500"/>
                     </button>
                 </div>
             </nav>
@@ -159,53 +215,58 @@ export default function DashboardPage() {
                         onChange={handleSearch}
                         className="p-2 rounded-lg border dark:border-gray-700 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-white shadow-sm"
                     />
-                    <MagnifyingGlassIcon className="w-5 h-5 absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500" />
+                    <MagnifyingGlassIcon
+                        className="w-5 h-5 absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500"/>
                 </div>
             </div>
 
-            {/* Content Container */}
-            <div className="container mx-auto">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    {/* Total Users Card */}
-                    <div
-                        className="relative p-4 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 bg-gradient-to-r from-blue-500 to-purple-600 text-white">
-                        <div className="absolute inset-0 opacity-20 flex items-center justify-center">
-                            <UserCircleIcon className="w-24 h-24 text-white"/>
-                        </div>
-                        <h3 className="text-lg font-bold relative z-10">Total Users</h3>
-                        <p className="text-2xl font-semibold relative z-10">{data?.usersCount}</p>
-                    </div>
+            <div className="container mx-auto mb-6">
+                <SimpleMetrics
+                    usersCount={data?.usersCount || 0}
+                    companiesCount={data?.companiesCount || 0}
+                    projectsCount={data?.projectsCount || 0}
+                    totalCustomers={data?.totalCustomers || 0}
+                    openTickets={data?.openTickets || 0}
+                    firstResponseTime={data?.firstResponseTime || 0}
+                    avgResolutionTime={data?.avgResolutionTime || 0}
+                    avgResponseTime={data?.avgResponseTime || 0}
+                />
+            </div>
 
-                    {/* Total Companies Card */}
-                    <div
-                        className="relative p-4 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 bg-gradient-to-r from-green-400 to-teal-600 text-white">
-                        <div className="absolute inset-0 opacity-20 flex items-center justify-center">
-                            <BuildingOfficeIcon className="w-24 h-24 text-white"/>
-                        </div>
-                        <h3 className="text-lg font-bold relative z-10">Total Companies</h3>
-                        <p className="text-2xl font-semibold relative z-10">{data?.companiesCount}</p>
-                    </div>
+            <div className="container mx-auto mb-6">
+                <TimeSeriesCharts
+                    newCustomerDates={data?.newCustomerDates || []}
+                    newCustomerCounts={data?.newCustomerCounts || []}
+                    churnRateDates={data?.churnRateDates || []}
+                    churnRates={data?.churnRates || []}
+                    loginDates={data?.loginDates || []}
+                    loginCounts={data?.loginCounts || []}
+                    clvDates={data?.clvDates || []}
+                    clvValues={data?.clvValues || []}
+                />
+            </div>
 
-                    {/* Total Projects Card */}
-                    <div
-                        className="relative p-4 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 bg-gradient-to-r from-orange-400 to-red-600 text-white">
-                        <div className="absolute inset-0 opacity-20 flex items-center justify-center">
-                            <ClipboardDocumentIcon className="w-24 h-24 text-white"/>
-                        </div>
-                        <h3 className="text-lg font-bold relative z-10">Total Projects</h3>
-                        <p className="text-2xl font-semibold relative z-10">{data?.projectsCount}</p>
-                    </div>
+            <div className="container mx-auto mb-6">
+                <DistributionCharts
+                    departmentLabels={data?.departmentLabels || []}
+                    userCountsPerDepartment={data?.userCountsPerDepartment || []}
+                    companyLabels={data?.companyLabels || []}
+                    userCountsPerCompany={data?.userCountsPerCompany || []}
+                    projectStatusLabels={data?.projectStatusLabels || []}
+                    projectStatusCounts={data?.projectStatusCounts || []}
+                    companyNames={data?.companyNames || []}
+                    departmentCounts={data?.departmentCounts || []}
+                />
+            </div>
 
-                    {/* Open Tickets Card */}
-                    <div
-                        className="relative p-4 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 bg-gradient-to-r from-pink-500 to-yellow-500 text-white">
-                        <div className="absolute inset-0 opacity-20 flex items-center justify-center">
-                            <TicketIcon className="w-24 h-24 text-white"/>
-                        </div>
-                        <h3 className="text-lg font-bold relative z-10">Open Tickets</h3>
-                        <p className="text-2xl font-semibold relative z-10">{data?.openTickets}</p>
-                    </div>
-                </div>
+            <div className="container mx-auto mb-6">
+                <StatusCharts
+                    ticketStatusLabels={data?.ticketStatusLabels || []}
+                    ticketStatusCounts={data?.ticketStatusCounts || []}
+                    resolutionRate={data?.resolutionRate || 0}
+                    backlogCounts={data?.backlogCounts || []}
+                    backlogLabels={data?.backlogLabels || []}
+                />
             </div>
         </div>
     );

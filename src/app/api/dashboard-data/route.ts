@@ -1,4 +1,3 @@
-// src/app/api/dashboard-data/route.ts
 import { NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
 
@@ -12,7 +11,12 @@ export async function GET() {
         const departmentsCount = await prisma.department.count();
         const projectsCount = await prisma.project.count();
         const openTickets = await prisma.supportTicket.count({ where: { status: 'Open' } });
+        const progressingTickets = await prisma.supportTicket.count({ where: { status: 'In Progress' } });
         const resolvedTickets = await prisma.supportTicket.count({ where: { status: 'Resolved' } });
+        const totalTickets = await prisma.supportTicket.count();
+
+        // Calculate Resolution Rate
+        const resolutionRate = totalTickets > 0 ? (resolvedTickets / totalTickets) * 100 : 0;
 
         // Average Response and Resolution Times
         const avgResponseTime = await prisma.supportTicket.aggregate({
@@ -30,26 +34,16 @@ export async function GET() {
             _avg: { netPromoterScore: true },
         });
 
-        // Users per Company (Top 10 Companies)
+        // Users per Company
         const usersPerCompany = await prisma.company.findMany({
-            take: 10,
-            orderBy: { name: 'asc' },
-            include: {
-                _count: {
-                    select: { users: true },
-                },
-            },
+            include: { _count: { select: { users: true } } },
         });
         const companyLabels = usersPerCompany.map((company) => company.name);
         const userCountsPerCompany = usersPerCompany.map((company) => company._count.users);
 
         // Users per Department
         const usersPerDepartment = await prisma.department.findMany({
-            include: {
-                _count: {
-                    select: { users: true },
-                },
-            },
+            include: { _count: { select: { users: true } } },
         });
         const departmentLabels = usersPerDepartment.map((dept) => dept.name);
         const userCountsPerDepartment = usersPerDepartment.map((dept) => dept._count.users);
@@ -70,16 +64,15 @@ export async function GET() {
         const ticketStatusLabels = ticketStatuses.map((status) => status.status);
         const ticketStatusCounts = ticketStatuses.map((status) => status._count.id);
 
+        // Support Ticket Backlog (Last 30 Days)
+        const backlogCounts = [progressingTickets, openTickets];
+        const backlogLabels = ['In Progress', 'Open'];
+
         // Logins Over Time (Last 30 Days)
         const loginActivities = await prisma.loginActivity.findMany({
-            where: {
-                loginAt: {
-                    gte: new Date(new Date().setDate(new Date().getDate() - 30)),
-                },
-            },
+            where: { loginAt: { gte: new Date(new Date().setDate(new Date().getDate() - 30)) } },
             orderBy: { loginAt: 'asc' },
         });
-
         const loginDates = loginActivities.map((activity) => activity.loginAt.toISOString().split('T')[0]);
         const loginCounts = loginActivities.reduce<Record<string, number>>((acc, activity) => {
             const date = activity.loginAt.toISOString().split('T')[0];
@@ -96,29 +89,11 @@ export async function GET() {
             },
             orderBy: { createdAt: 'asc' },
         });
-
         const newCustomerDates = newCustomers.map((customer) => customer.createdAt.toISOString().split('T')[0]);
         const newCustomerCounts = newCustomerDates.reduce<Record<string, number>>((acc, date) => {
             acc[date] = (acc[date] || 0) + 1;
             return acc;
         }, {});
-
-        // Customer Churn Rate
-        const churnedCustomersCount = await prisma.customer.count({ where: { churned: true } });
-        const totalCustomersCount = await prisma.customer.count();
-        const churnRate = totalCustomersCount > 0 ? (churnedCustomersCount / totalCustomersCount) * 100 : 0;
-
-        // Customer Lifetime Value (CLV) Over Time
-        const clvData = await prisma.customer.findMany({
-            where: {
-                createdAt: {
-                    gte: new Date(new Date().setDate(new Date().getDate() - 30)),
-                },
-            },
-        });
-
-        const clvDates = clvData.map((customer) => customer.createdAt.toISOString().split('T')[0]);
-        const clvValues = clvData.map((customer) => customer.netPromoterScore);
 
         return NextResponse.json({
             usersCount,
@@ -139,13 +114,13 @@ export async function GET() {
             projectStatusCounts,
             ticketStatusLabels,
             ticketStatusCounts,
+            resolutionRate,
+            backlogCounts,
+            backlogLabels,
             loginDates,
             loginCounts: Object.values(loginCounts),
-            newCustomerDates,
+            newCustomerDates: Object.keys(newCustomerCounts),
             newCustomerCounts: Object.values(newCustomerCounts),
-            churnRate,
-            clvDates,
-            clvValues,
         });
     } catch (error) {
         console.error("API Error:", error);
