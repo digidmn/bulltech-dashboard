@@ -202,13 +202,15 @@ export default function DashboardPage() {
             className={`min-h-screen ${isDarkMode ? 'bg-gradient-to-r from-gray-800 via-gray-900 to-black text-white' : 'bg-gradient-to-r from-blue-100 to-purple-200 text-gray-600'} p-6`}>
             {/* Top Navigation Bar */}
             <nav className="flex justify-between items-center mb-6 p-4 bg-white dark:bg-gray-800 shadow-lg rounded-lg">
-                <h1 className="text-3xl font-bold">Dashboard</h1>
+                <h1 className="text-3xl font-bold">Bulltech Dashboard</h1>
                 <div className="flex items-center gap-4">
                     <button onClick={toggleDarkMode}>
                         {isDarkMode ? <SunIcon className="w-6 h-6 text-yellow-400"/> :
                             <MoonIcon className="w-6 h-6 text-blue-500"/>}
                     </button>
-                    <UserCircleIcon className="w-8 h-8 text-gray-600 dark:text-gray-300"/>
+                    <a href="https://digidmn.github.io/" target="_blank" rel="noopener noreferrer">
+                        <UserCircleIcon className="w-8 h-8 text-gray-600 dark:text-gray-300"/>
+                    </a>
                     <button onClick={logout}>
                         <PowerIcon className="w-6 h-6 text-red-500"/>
                     </button>
@@ -217,7 +219,7 @@ export default function DashboardPage() {
 
             {/* Analytics Heading with Search Bar */}
             <div className="container mx-auto flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-semibold">Analytics</h2>
+                <h2 className="text-2xl font-semibold">Analytics Dashboard</h2>
             </div>
 
             <div className="container mx-auto mb-6">
