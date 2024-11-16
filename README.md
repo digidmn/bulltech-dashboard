@@ -1,148 +1,125 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
-
-## Getting Started
-
-First, run the development server:
-
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-
-
-## 📋 Project ReadMe for BullTech Dashboard
-
 # BullTech Dashboard
 
-Welcome to the **BullTech Dashboard**, a Next.js application for analytics and data visualization with a sleek, modern design, utilizing dark and light themes, and offering various metrics, charts, and animations.
+Welcome to the **BullTech Dashboard**, a powerful and modern analytics application built with **Next.js**, **React**, **Tailwind CSS**, and **Prisma**. This project features a sleek, futuristic design with dynamic charts, dark and light themes, and interactive UI elements for a great user experience.
 
-## 🚀 Project Overview
+## 🚀 Features
 
-This dashboard is built using **Next.js** (App Router), **React**, and **Tailwind CSS**. It features dynamic data visualizations using **Chart.js**, enhanced with modern, futuristic, glassmorphic UI elements.
+- **User Authentication**: Cookie-based login system for secure access.
+- **Dark and Light Modes**: Persistent theme state with smooth toggling.
+- **Data Visualization**: Beautiful charts using **Chart.js** with 3D-like effects.
+- **Responsive Design**: Mobile-friendly UI with glassmorphic elements.
+- **State Management**: Efficient use of React state and cookies for theme and authentication.
 
-Key Features:
-- User authentication (login with cookies).
-- Dark and light theme modes with persistent state.
-- Interactive metrics and charts for various analytics.
-- Responsive design with animations and transitions.
-- Data fetching and API integration.
+---
 
 ## 🛠️ Tech Stack
 
-- **Frontend Framework**: [Next.js](https://nextjs.org/)
-- **UI Framework**: [React](https://reactjs.org/)
-- **Styling**: [Tailwind CSS](https://tailwindcss.com/)
-- **Data Visualization**: [Chart.js](https://www.chartjs.org/)
-- **State Management & Cookies**: [React State, Nookies](https://www.npmjs.com/package/nookies)
+- **Frontend Framework**: Next.js (React)
+- **Styling**: Tailwind CSS
+- **Data Visualization**: Chart.js
+- **Database**: Prisma ORM (connected to your database)
+- **State Management**: React State, Nookies (for cookies)
 
-## 📦 Installation
+---
 
-### Prerequisites
+## 📦 Prerequisites
 
-- Node.js >= 18.x
-- npm >= 9.x or yarn >= 1.22.x
+Ensure you have the following installed:
 
-### Clone the Repository
+- **Node.js**: >= 18.x
+- **npm**: >= 9.x
+- **Git**
+
+---
+
+## 🗂️ Git Ignore Updates
+
+The `.gitignore` file has been updated to simplify the setup process. However, you will need to provide the following files yourself:
+
+- `.env.local` (environment variables)
+- Custom fonts (if any are not included in the repository)
+
+---
+
+## 📋 Installation Guide
+
+### Step 1: Clone the Repository
 
 ```bash
-git clone https://github.com/yourusername/bulltech-dashboard.git
+git clone https://github.com/digidmn/bulltech-dashboard.git
 cd bulltech-dashboard
 ```
 
-### Install Dependencies
+### Step 2: Install Dependencies
 
 ```bash
 npm install
 ```
 
-### Environment Variables
+### Step 3: Set Up Environment Variables
 
-Create a `.env.local` file at the root of your project and add the following variables:
+Create a `.env.local` file in the root of the project with the following content:
 
 ```bash
-NEXT_PUBLIC_API_URL=http://your-api-url
+NEXT_PUBLIC_API_URL=http://localhost:3000
 NEXT_PUBLIC_DEFAULT_THEME=dark
+
+# Prisma Database Connection (Example)
+DATABASE_URL=mysql://username:password@localhost:3306/mydatabase
 ```
 
-### Fonts
+### Step 4: Run Prisma Migrations
 
-The project uses custom fonts (`GeistSans` and `GeistMono`). Ensure these fonts are in the `public/fonts` directory.
+Ensure your database is set up and run the migrations:
 
-## ⚙️ Running the Project
+```bash
+npx prisma migrate dev
+```
 
-### Development Server
+### Step 5: Start the Development Server
 
 ```bash
 npm run dev
 ```
 
-This will start the development server at [http://localhost:3000](http://localhost:3000).
+Open your browser and navigate to [http://localhost:3000](http://localhost:3000) to see the app in action.
 
-### Production Build
+---
 
-```bash
-npm run build
-npm start
-```
+## ⚙️ Scripts
 
-This will build the project and start the production server.
+- **Development**: `npm run dev` - Starts the development server.
+- **Production Build**: `npm run build` - Builds the project for production.
+- **Start**: `npm run start` - Starts the production server.
+- **Lint**: `npm run lint` - Checks code for linting errors.
+- **Prisma Studio**: `npx prisma studio` - Opens Prisma Studio for database management.
 
-### Linting
-
-Ensure your code follows consistent style guidelines:
-
-```bash
-npm run lint
-```
+---
 
 ## 🌐 Deployment
 
-This project can be easily deployed on platforms like **Vercel**, **Netlify**, or **AWS Amplify**. The project is configured with Next.js' App Router, and it uses static and server-side rendering.
-
-To deploy on **Vercel**, follow these steps:
+The easiest way to deploy your Next.js app is through **Vercel**:
 
 1. Push your code to GitHub.
-2. Connect your GitHub repository to Vercel.
-3. Set environment variables in the Vercel dashboard.
-4. Deploy!
+2. Go to [Vercel](https://vercel.com) and import the project from GitHub.
+3. Set the environment variables in the Vercel dashboard.
+4. Deploy your application.
+
+Alternatively, you can deploy to **Netlify**, **AWS Amplify**, or any platform that supports Node.js.
+
+---
 
 ## 🗄️ Directory Structure
 
-```
+```plaintext
 src/
 ├── app/
 │   ├── dashboard/
-│   │   └── page.tsx        # Main Dashboard Page
-│   └── layout.tsx          # Root Layout with Theme Handling
+│   │   └── page.tsx          # Main Dashboard Page
+│   └── layout.tsx            # Root Layout with Theme Handling
 ├── components/
-│   ├── Footer.tsx          # Footer Component
-│   ├── Navbar.tsx          # Navbar Component
+│   ├── Footer.tsx            # Footer Component
+│   ├── Navbar.tsx            # Navbar Component
 │   └── dashboard/
 │       ├── SimpleMetrics.tsx
 │       ├── TimeSeriesCharts.tsx
@@ -150,30 +127,47 @@ src/
 │       ├── StatusCharts.tsx
 │       └── SatisfactionMetrics.tsx
 ├── styles/
-│   └── globals.css         # Global Styles
+│   └── globals.css           # Global Styles
 ├── utils/
-│   └── theme.ts            # Theme Management Utilities
+│   └── theme.ts              # Theme Management Utilities
 public/
 ├── fonts/
 │   ├── GeistVF.woff
 │   └── GeistMonoVF.woff
 ```
 
+---
+
+## 🌙 Theme Management
+
+The project supports persistent theme toggling between dark and light modes:
+
+1. The theme state is managed with a cookie (`theme`) using **Nookies**.
+2. Users can toggle the theme via the navbar button.
+3. The theme is applied automatically on page load based on the cookie value.
+
+Example utility function:
+
+```typescript
+import { setCookie, parseCookies } from 'nookies';
+
+export const toggleDarkMode = (isDarkMode: boolean, setIsDarkMode: Function) => {
+    const newMode = !isDarkMode;
+    setIsDarkMode(newMode);
+    setCookie(null, 'theme', newMode ? 'dark' : 'light', { maxAge: 30 * 24 * 60 * 60, path: '/' });
+    document.documentElement.classList.toggle('dark', newMode);
+};
+```
+
+---
+
 ## 🛡️ Authentication
 
-The project uses a simple cookie-based authentication:
+The project uses simple cookie-based authentication. A middleware (`middleware.ts`) handles redirection for protected routes like the dashboard.
 
-1. On login, a cookie named `authenticated` is set.
-2. The dark mode preference is stored in a `theme` cookie (`dark` or `light`).
-3. Middleware in `src/middleware.ts` handles protected routes (e.g., `/dashboard`).
+Example middleware:
 
-## ⚙️ Middleware
-
-The `middleware.ts` file ensures that unauthenticated users are redirected to the login page when accessing protected routes.
-
-Example:
-
-```ts
+```typescript
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
@@ -184,90 +178,44 @@ export function middleware(request: NextRequest) {
     }
     return NextResponse.next();
 }
-
-export const config = {
-    matcher: ['/dashboard/:path*'],
-};
 ```
 
-## 🌙 Theme Management
+---
 
-The project features dark and light mode toggling:
+## 📊 Data Visualization
 
-- The theme preference is stored in a cookie (`theme`).
-- On page load, the theme is applied based on the cookie value.
-- Users can toggle the theme using a button in the navbar.
+The dashboard includes various interactive charts built with **Chart.js**:
 
-**Theme Utility (`src/utils/theme.ts`):**
+- **Doughnut Charts**: For ticket status and resolution rate.
+- **Bar Charts**: For user distribution and ticket backlog.
+- **Line Charts**: For login trends over time.
 
-```ts
-import { setCookie, parseCookies } from 'nookies';
+The charts are styled with gradients and shadows for a modern look.
 
-export const toggleDarkMode = (isDarkMode: boolean, setIsDarkMode: Function) => {
-    const newMode = !isDarkMode;
-    setIsDarkMode(newMode);
-    setCookie(null, 'theme', newMode ? 'dark' : 'light', {
-        maxAge: 30 * 24 * 60 * 60,
-        path: '/',
-    });
-    document.documentElement.classList.toggle('dark', newMode);
-};
-```
-
-## 📊 Charts
-
-The project uses **Chart.js** for data visualizations:
-
-1. **Doughnut Charts** for visualizing tickets by status and resolution rate.
-2. **Bar Charts** for displaying user distribution and support ticket backlog.
-3. **Line Charts** for time series data like logins over time.
-
-Charts are enhanced with gradients, shadows, and 3D effects for a modern look.
-
-Example:
-
-```tsx
-<Bar
-    data={data}
-    options={{
-        scales: {
-            x: {
-                ticks: {
-                    color: document.documentElement.classList.contains('dark') ? '#D1D5DB' : '#1F2937',
-                },
-            },
-        },
-        elements: {
-            bar: {
-                borderRadius: 10,
-                backgroundColor: (context) => {
-                    const gradient = context.chart.ctx.createLinearGradient(0, 0, 0, context.chart.height);
-                    gradient.addColorStop(0, '#36A2EB');
-                    gradient.addColorStop(1, '#007991');
-                    return gradient;
-                },
-            },
-        },
-    }}
-/>
-```
+---
 
 ## 📝 Known Issues
 
-1. **Theme Flash**: On initial page load or navigation, there might be a brief flash of the wrong theme. This can be mitigated by server-side theme detection or using a loading screen.
-2. **Cookie Expiry**: Ensure cookies have appropriate expiration to maintain user preferences.
+1. **Theme Flash**: There might be a brief flash of the incorrect theme on page load. This can be mitigated by server-side theme detection.
+2. **Cookie Expiry**: Ensure cookies have appropriate expiration times to maintain user preferences.
+
+---
 
 ## 🤝 Contributing
 
-1. Fork the repository.
-2. Create a new branch: `git checkout -b feature/your-feature-name`.
-3. Commit your changes: `git commit -m 'Add some feature'`.
-4. Push to the branch: `git push origin feature/your-feature-name`.
-5. Open a pull request.
+1. **Fork** the repository.
+2. Create a **new branch**: `git checkout -b feature/your-feature-name`.
+3. **Commit your changes**: `git commit -m 'Add feature'`.
+4. **Push to the branch**: `git push origin feature/your-feature-name`.
+5. Open a **pull request**.
+
+---
 
 ## 🛡️ License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License. See the `LICENSE` file for details.
+
+---
 
 ## 💬 Contact
 
@@ -275,4 +223,4 @@ For any questions or feedback, please contact [support@bulltechgroup.co.za](mail
 
 ---
 
-Happy Coding! 🚀
+Enjoy building with BullTech Dashboard! 🚀
