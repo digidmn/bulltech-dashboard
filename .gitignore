@@ -1,6 +1,4 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-
-# dependencies
+# Node dependencies
 /node_modules
 /.pnp
 .pnp.*
@@ -10,31 +8,43 @@
 !.yarn/releases
 !.yarn/versions
 
-# testing
+# Testing coverage
 /coverage
 
-# next.js
+# Next.js build output
 /.next/
 /out/
 
-# production
+# Production build
 /build
 
-# misc
+# MacOS files
 .DS_Store
-*.pem
 
-# debug
+# Debug logs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# env files (can opt-in for committing if needed)
-.env*
+# Prisma
+/prisma/migrations/ # Ignore migrations if you do not want to include them
+*.db-journal # Ignore SQLite journal files
 
-# vercel
+# SQLite database (if using a dev database locally)
+!prisma/dev.db # Include the SQLite dev database for easy setup
+
+# Environment files
+.env*
+!.env.example # Include an example environment file for users to configure
+
+# Vercel configuration
 .vercel
 
-# typescript
+# TypeScript build info
 *.tsbuildinfo
 next-env.d.ts
+
+# IDE settings
+.vscode/
+.idea/
+*.sublime-workspace
