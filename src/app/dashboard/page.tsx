@@ -161,7 +161,7 @@ export default function DashboardPage() {
         router.push('/auth/login');
     };
 
-    // Toggle dark mode and update the cookie
+// Toggle dark mode and update the cookie
     const toggleDarkMode = () => {
         const newMode = !isDarkMode;
         setIsDarkMode(newMode);
@@ -176,6 +176,20 @@ export default function DashboardPage() {
         document.documentElement.classList.toggle("dark", newMode);
     };
 
+    // Set dark mode based on the cookie value on initial load
+    useEffect(() => {
+        const cookies = parseCookies();
+        const savedTheme = cookies.theme;
+
+        // If the saved theme is 'dark', enable dark mode
+        if (savedTheme === "dark") {
+            setIsDarkMode(true);
+            document.documentElement.classList.add("dark");
+        } else {
+            setIsDarkMode(false);
+            document.documentElement.classList.remove("dark");
+        }
+    }, []);
     if (loading) {
         return (
             <div className="flex items-center justify-center min-h-screen">
