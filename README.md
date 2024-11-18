@@ -42,7 +42,7 @@ cd bulltech-dashboard
 ### Step 2: Install Dependencies
 
 ```bash
-npm install
+npm install --legacy-peer-dep
 ```
 
 ### Step 3: Set Up Environment Variables
