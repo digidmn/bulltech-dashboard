@@ -89,7 +89,7 @@ export default function DashboardPage() {
     const [data, setData] = useState<DashboardData | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
-    const [activeIndex, setActiveIndex] = useState<number | null>(null);
+    const [accordionState, setAccordionState] = useState([true, true, true]);
 
     useEffect(() => {
         const isAuthenticated = parseCookies()['authenticated'] === 'true';
@@ -208,25 +208,44 @@ export default function DashboardPage() {
     }
 
     const toggleAccordion = (index: number) => {
-        setActiveIndex(activeIndex === index ? null : index);
+        setAccordionState((prevState) =>
+            prevState.map((isOpen, i) => (i === index ? !isOpen : isOpen))
+        );
     };
 
     return (
         <div
             className={`min-h-screen ${isDarkMode ? 'bg-gradient-to-r from-gray-800 via-gray-900 to-black text-white' : 'bg-gradient-to-r from-blue-100 to-purple-200 text-gray-600'} p-6`}>
             {/* Top Navigation Bar */}
-            <nav className="flex justify-between items-center mb-6 p-4 bg-white dark:bg-gray-800 shadow-lg rounded-lg">
-                <h1 className="text-3xl font-bold">Bulltech Dashboard</h1>
+            <nav
+                className="flex justify-between sticky top-0 z-50 items-center mb-6 p-4 bg-white/20 dark:bg-gray-900/30 backdrop-blur-md shadow-2xl rounded-3xl ring-1 ring-white/10 dark:ring-gray-800/50">
+                <h1 className="text-3xl font-bold text-green-800 dark:text-green-600">Bulltech Dashboard</h1>
                 <div className="flex items-center gap-4">
-                    <button onClick={toggleDarkMode}>
-                        {isDarkMode ? <SunIcon className="w-6 h-6 text-yellow-400"/> :
-                            <MoonIcon className="w-6 h-6 text-blue-500"/>}
+                    {/* Dark Mode Toggle Button */}
+                    <button
+                        onClick={toggleDarkMode}
+                        className="p-3 rounded-lg bg-white/10 dark:bg-gray-400/10 transition duration-300 shadow-md hover:bg-blue-500/70 hover:text-white dark:hover:bg-yellow-400/80 dark:hover:text-black">
+                        {isDarkMode ? (
+                            <SunIcon className="w-6 h-6"/>
+                        ) : (
+                            <MoonIcon className="w-6 h-6"/>
+                        )}
                     </button>
-                    <a href="https://digidmn.github.io/" target="_blank" rel="noopener noreferrer">
-                        <UserCircleIcon className="w-8 h-8 text-gray-600 dark:text-gray-300"/>
+
+                    {/* User Icon with Link */}
+                    <a
+                        href="https://digidmn.github.io/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="p-2 rounded-lg bg-white/10 dark:bg-gray-400/10 transition duration-300 shadow-md hover:bg-purple-500/70 hover:text-white dark:hover:bg-indigo-400/80 dark:hover:text-black">
+                        <UserCircleIcon className="w-8 h-8"/>
                     </a>
-                    <button onClick={logout}>
-                        <PowerIcon className="w-6 h-6 text-red-500"/>
+
+                    {/* Logout Button */}
+                    <button
+                        onClick={logout}
+                        className="p-3 rounded-lg bg-white/10 dark:bg-gray-400/10 transition duration-300 shadow-md hover:bg-red-500/70 hover:text-white dark:hover:bg-red-400/80 dark:hover:text-black">
+                        <PowerIcon className="w-6 h-6"/>
                     </button>
                 </div>
             </nav>
@@ -236,38 +255,51 @@ export default function DashboardPage() {
                 <h2 className="text-2xl font-semibold">Analytics Dashboard</h2>
             </div>
 
-            <div className="container mx-auto mb-6">
-                <SatisfactionMetrics csatScore={data?.csatScore || 0} npsScore={data?.npsScore || 0}/>
-            </div>
-            <hr className="h-0.5 bg-white/30 dark:bg-white/20 backdrop-blur-lg rounded-lg my-6"/>
+            <div className="container mx-auto">
+                <div className="flex flex-col md:flex-row justify-between gap-6">
+                    {/* Left Side: SimpleMetrics (takes more space) */}
+                    <div
+                        className="flex-1 md:flex-[2] mb-2 p-4">
+                        <SimpleMetrics
+                            usersCount={data?.usersCount || 0}
+                            companiesCount={data?.companiesCount || 0}
+                            projectsCount={data?.projectsCount || 0}
+                            openTickets={data?.openTickets || 0}
+                            avgResolutionTime={data?.avgResolutionTime || 0}
+                            avgResponseTime={data?.avgResponseTime || 0}
+                        />
+                    </div>
 
-            <div className="container mx-auto mb-6">
-                <SimpleMetrics
-                    usersCount={data?.usersCount || 0}
-                    companiesCount={data?.companiesCount || 0}
-                    projectsCount={data?.projectsCount || 0}
-                    openTickets={data?.openTickets || 0}
-                    avgResolutionTime={data?.avgResolutionTime || 0}
-                    avgResponseTime={data?.avgResponseTime || 0}
-                />
+                    {/* Right Side: SatisfactionMetrics (takes less space) */}
+                    <div
+                        className="flex-1 md:flex-[1.5] mb-2 p-4">
+                        <SatisfactionMetrics
+                            csatScore={data?.csatScore || 0}
+                            npsScore={data?.npsScore || 0}
+                        />
+                    </div>
+                </div>
             </div>
+
+            <hr className="h-0.5 bg-white/30 dark:bg-white/20 backdrop-blur-lg rounded-lg my-6"/>
 
             {/* Accordion Sections with + and - Icons */}
             <div className="space-y-6">
                 {/* Time Series Charts Accordion */}
                 <div>
                     <button
-                        onClick={() => toggleAccordion(2)}
+                        onClick={() => toggleAccordion(0)}
                         className="ring-2 ring-cyan-700 w-full flex justify-between items-center font-semibold text-lg p-4 bg-gray-100 dark:bg-gray-800 rounded-lg transition-all duration-200"
                     >
                         <span>Time Series Charts</span>
-                        <span className="text-xl">
-                {activeIndex === 2 ? '-' : '+'}
-            </span>
+                        <span className="text-xl">{accordionState[0] ? '-' : '+'}</span>
                     </button>
-                    {activeIndex === 2 && (
+                    {accordionState[0] && (
                         <div className="p-4">
-                            <TimeSeriesCharts loginDates={data?.loginDates || []} loginCounts={data?.loginCounts || []} />
+                            <TimeSeriesCharts
+                                loginDates={data?.loginDates || []}
+                                loginCounts={data?.loginCounts || []}
+                            />
                         </div>
                     )}
                 </div>
@@ -275,15 +307,13 @@ export default function DashboardPage() {
                 {/* Distribution Charts Accordion */}
                 <div>
                     <button
-                        onClick={() => toggleAccordion(3)}
+                        onClick={() => toggleAccordion(1)}
                         className="ring-2 ring-cyan-700 w-full flex justify-between items-center font-semibold text-lg p-4 bg-gray-100 dark:bg-gray-800 rounded-lg transition-all duration-200"
                     >
                         <span>Distribution Charts</span>
-                        <span className="text-xl">
-                {activeIndex === 3 ? '-' : '+'}
-            </span>
+                        <span className="text-xl">{accordionState[1] ? '-' : '+'}</span>
                     </button>
-                    {activeIndex === 3 && (
+                    {accordionState[1] && (
                         <div className="p-4">
                             <DistributionCharts
                                 departmentLabels={data?.departmentLabels || []}
@@ -300,15 +330,13 @@ export default function DashboardPage() {
                 {/* Status Charts Accordion */}
                 <div>
                     <button
-                        onClick={() => toggleAccordion(4)}
+                        onClick={() => toggleAccordion(2)}
                         className="ring-2 ring-cyan-700 w-full flex justify-between items-center font-semibold text-lg p-4 bg-gray-100 dark:bg-gray-800 rounded-lg transition-all duration-200"
                     >
                         <span>Status Charts</span>
-                        <span className="text-xl">
-                {activeIndex === 4 ? '-' : '+'}
-            </span>
+                        <span className="text-xl">{accordionState[2] ? '-' : '+'}</span>
                     </button>
-                    {activeIndex === 4 && (
+                    {accordionState[2] && (
                         <div className="p-4">
                             <StatusCharts
                                 ticketStatusLabels={data?.ticketStatusLabels || []}

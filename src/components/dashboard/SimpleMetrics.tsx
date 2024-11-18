@@ -29,7 +29,7 @@ const SimpleMetrics: React.FC<MetricsProps> = ({
                                                    avgResponseTime,
                                                }) => {
     return (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 my-6">
             {/* Total Users */}
             <div className="relative p-6 bg-gradient-to-r from-blue-500 to-blue-700 text-white rounded-lg shadow-lg">
                 <h3 className="text-xl font-bold">Total Users</h3>

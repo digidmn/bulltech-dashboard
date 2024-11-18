@@ -73,7 +73,7 @@ export default function SatisfactionMetrics({ csatScore, npsScore }: Satisfactio
     };
 
     return (
-        <div className="flex justify-between space-x-12">
+        <div className="flex space-x-12">
             {/* CSAT Gauge Card */}
             <div
                 className="relative w-72 h-72 p-4 bg-gradient-to-br from-blue-800 to-cyan-700 rounded-3xl shadow-2xl ring-4 ring-cyan-300">
